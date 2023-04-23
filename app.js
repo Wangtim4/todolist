@@ -71,7 +71,31 @@ add.addEventListener('click', e =>{
 
     todo.style.animation = "scaleUp 0.5s forwards";
 
-    // 新增完清空
+    // #2-1建立物件
+    let myTodo ={
+        todoText:todoText,
+        todoMonth:todoMonth,
+        todoDay:todoDay
+    };
+    // 2-2.暫存myTodo物件https://ithelp.ithome.com.tw/articles/10251508
+    let myList = localStorage.getItem("list");
+    // console.log(myList);
+
+    // 如果暫存myList為空，將暫存存入
+    if(myList == null ) {
+        // #JSON.stringify把資料轉成陣列存進去
+        localStorage.setItem("list",JSON.stringify([myTodo]));
+    }else{
+         // 如果暫存myList有值，將值存入myListArray
+        let myListArray = JSON.parse(myList);
+        myListArray.push(myTodo);
+        localStorage.setItem("list",JSON.stringify(myListArray));
+
+    }
+
+    console.log(JSON.parse(localStorage.getItem("list")));
+
+    // 6.新增完清空
     form.children[0].value ='';
     form.children[1].value ='';
     form.children[2].value ='';
