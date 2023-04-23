@@ -59,16 +59,16 @@ add.addEventListener('click', e => {
         let todoItem = e.target.parentElement;
         // todoItem結束時
         todo.addEventListener("animationend", (() => {
-             // 4.刪除暫存
-             let text = todoItem.children[0].innerHTML;
-             let myListArray = JSON.parse(localStorage.getItem("list"));
-             myListArray.forEach((item, index) => {
-                 if (item.todoText == text) {
- 
-                     myListArray.splice(index, 1);
-                     localStorage.setItem('list', JSON.stringify(myListArray));
-                 }
-             })
+            // 4.刪除暫存
+            let text = todoItem.children[0].innerHTML;
+            let myListArray = JSON.parse(localStorage.getItem("list"));
+            myListArray.forEach((item, index) => {
+                if (item.todoText == text) {
+
+                    myListArray.splice(index, 1);
+                    localStorage.setItem('list', JSON.stringify(myListArray));
+                }
+            })
 
             todoItem.remove();
         }))
@@ -115,42 +115,60 @@ add.addEventListener('click', e => {
 
 })
 
-// 3.將暫存顯示
-let myList = localStorage.getItem('list');
-if (myList !== null) {
-    let myListArray = JSON.parse(myList);
-    myListArray.forEach(item => {
+loadData();
 
-        let todo = document.createElement("div");
-        todo.classList.add("todo");
-        let text = document.createElement("p");
-        text.classList.add("todo-text");
-        let time = document.createElement("p");
-        time.classList.add("todo-time");
-        text.innerText = item.todoText;
-        time.innerText = item.todoMonth + "/" + item.todoDay;
+function loadData() {
 
-        todo.appendChild(text);
-        todo.appendChild(time);
+    // 3.將暫存顯示
+    let myList = localStorage.getItem('list');
+    if (myList !== null) {
+        let myListArray = JSON.parse(myList);
+        myListArray.forEach(item => {
 
-        let checkbtn = document.createElement("button");
-        checkbtn.classList.add("check");
-        checkbtn.innerHTML = '<i class="fa-solid fa-check"></i>';
-        checkbtn.addEventListener('click', e => {
-            console.log(e.target.parentElement);
-            let todoItem = e.target.parentElement;
-            todoItem.classList.toggle('done');
-        })
+            let todo = document.createElement("div");
+            todo.classList.add("todo");
+            let text = document.createElement("p");
+            text.classList.add("todo-text");
+            let time = document.createElement("p");
+            time.classList.add("todo-time");
+            text.innerText = item.todoText;
+            time.innerText = item.todoMonth + "/" + item.todoDay;
 
-        let delbtn = document.createElement("button");
-        delbtn.classList.add("delete");
-        delbtn.innerHTML = '<i class="fa-solid fa-trash"></i>';
+            todo.appendChild(text);
+            todo.appendChild(time);
 
-        delbtn.addEventListener('click', e => {
-            let todoItem = e.target.parentElement;
-            todoItem.style.animation = 'scaleDowm 0.3s forwards';
+            let checkbtn = document.createElement("button");
+            checkbtn.classList.add("check");
+            checkbtn.innerHTML = '<i class="fa-solid fa-check"></i>';
+            checkbtn.addEventListener('click', e => {
+                console.log(e.target.parentElement);
+                let todoItem = e.target.parentElement;
+                todoItem.classList.toggle('done');
+            })
 
-            todo.addEventListener('animationend', () => {
+            let delbtn = document.createElement("button");
+            delbtn.classList.add("delete");
+            delbtn.innerHTML = '<i class="fa-solid fa-trash"></i>';
+
+            delbtn.addEventListener('click', e => {
+                let todoItem = e.target.parentElement;
+                todoItem.style.animation = 'scaleDowm 0.3s forwards';
+
+                todo.addEventListener('animationend', () => {
+                    // 4.刪除暫存
+                    let text = todoItem.children[0].innerHTML;
+                    let myListArray = JSON.parse(localStorage.getItem("list"));
+                    myListArray.forEach((item, index) => {
+                        if (item.todoText == text) {
+
+                            myListArray.splice(index, 1);
+                            localStorage.setItem('list', JSON.stringify(myListArray));
+                        }
+                    })
+
+                    todo.remove();
+                })
+
                 // 4.刪除暫存
                 let text = todoItem.children[0].innerHTML;
                 let myListArray = JSON.parse(localStorage.getItem("list"));
@@ -161,25 +179,79 @@ if (myList !== null) {
                         localStorage.setItem('list', JSON.stringify(myListArray));
                     }
                 })
-
-                todo.remove();
             })
 
-            // 4.刪除暫存
-            let text = todoItem.children[0].innerHTML;
-            let myListArray = JSON.parse(localStorage.getItem("list"));
-            myListArray.forEach((item, index) => {
-                if (item.todoText == text) {
+            todo.appendChild(checkbtn);
+            todo.appendChild(delbtn);
 
-                    myListArray.splice(index, 1);
-                    localStorage.setItem('list', JSON.stringify(myListArray));
-                }
-            })
-        })
-
-        todo.appendChild(checkbtn);
-        todo.appendChild(delbtn);
-
-        section.appendChild(todo);
-    });
+            section.appendChild(todo);
+        });
+    }
 }
+
+// 依時間排列
+function mergeTime(arr1, arr2) {
+    let result = [];
+    let i = 0;
+    let j = 0;
+
+    while (i < arr1.length && j < arr2.length) {
+        if (Number(arr1[i].todoMonth) > Number(arr2[j].todoMonth)) {
+            result.push(arr2[j]);
+            j++;
+        } else if (Number(arr1[i].todoMonth) < Number(arr2[j].todoMonth)) {
+            result.push(arr1[i]);
+            i++;
+        } else if (Number(arr1[i].todoMonth) == Number(arr2[j].todoMonth)) {
+            if (Number(arr1[i].todoDate) > Number(arr2[j].todoDate)) {
+                result.push(arr2[j]);
+                j++;
+            } else {
+                result.push(arr1[i]);
+                i++;
+            }
+        }
+    }
+
+    while (i < arr1.length) {
+        result.push(arr1[i]);
+        i++;
+    }
+    while (j < arr2.length) {
+        result.push(arr2[j]);
+        j++;
+    }
+
+    return result;
+}
+
+function mergeSort(arr) {
+    if (arr.length === 1) {
+        return arr;
+    } else {
+        let middle = Math.floor(arr.length / 2);
+        let right = arr.slice(0, middle);
+        let left = arr.slice(middle, arr.length);
+
+        return mergeTime(mergeSort(right), mergeSort(left));
+    }
+}
+
+console.log(mergeSort(JSON.parse(localStorage.getItem("list"))));
+
+let sortBtn = document.querySelector("div.sort button");
+
+sortBtn.addEventListener('click', () => {
+    // sort data
+    let sortedArray = mergeSort(JSON.parse(localStorage.getItem("list")));
+    localStorage.setItem("list", JSON.stringify(sortedArray));
+
+    // remove data
+    let len = section.children.length;
+    for (let i = 0; i < len; i++) {
+        section.children[0].remove();
+    }
+
+    loadData();
+
+})
