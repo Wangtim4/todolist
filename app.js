@@ -59,6 +59,17 @@ add.addEventListener('click', e => {
         let todoItem = e.target.parentElement;
         // todoItem結束時
         todo.addEventListener("animationend", (() => {
+             // 4.刪除暫存
+             let text = todoItem.children[0].innerHTML;
+             let myListArray = JSON.parse(localStorage.getItem("list"));
+             myListArray.forEach((item, index) => {
+                 if (item.todoText == text) {
+ 
+                     myListArray.splice(index, 1);
+                     localStorage.setItem('list', JSON.stringify(myListArray));
+                 }
+             })
+
             todoItem.remove();
         }))
         // todoItem動畫
@@ -104,7 +115,7 @@ add.addEventListener('click', e => {
 
 })
 
-// 將暫存顯示
+// 3.將暫存顯示
 let myList = localStorage.getItem('list');
 if (myList !== null) {
     let myListArray = JSON.parse(myList);
@@ -125,7 +136,7 @@ if (myList !== null) {
         let checkbtn = document.createElement("button");
         checkbtn.classList.add("check");
         checkbtn.innerHTML = '<i class="fa-solid fa-check"></i>';
-        checkbtn.addEventListener('click',e => {
+        checkbtn.addEventListener('click', e => {
             console.log(e.target.parentElement);
             let todoItem = e.target.parentElement;
             todoItem.classList.toggle('done');
@@ -135,15 +146,37 @@ if (myList !== null) {
         delbtn.classList.add("delete");
         delbtn.innerHTML = '<i class="fa-solid fa-trash"></i>';
 
-        delbtn.addEventListener('click',e => {
-            let todoItem =e.target.parentElement;
-            todoItem.style.animation ='scaleDowm 0.3s forwards';
+        delbtn.addEventListener('click', e => {
+            let todoItem = e.target.parentElement;
+            todoItem.style.animation = 'scaleDowm 0.3s forwards';
 
-            todo.addEventListener('animationend',()=>{
+            todo.addEventListener('animationend', () => {
+                // 4.刪除暫存
+                let text = todoItem.children[0].innerHTML;
+                let myListArray = JSON.parse(localStorage.getItem("list"));
+                myListArray.forEach((item, index) => {
+                    if (item.todoText == text) {
+
+                        myListArray.splice(index, 1);
+                        localStorage.setItem('list', JSON.stringify(myListArray));
+                    }
+                })
+
                 todo.remove();
             })
+
+            // 4.刪除暫存
+            let text = todoItem.children[0].innerHTML;
+            let myListArray = JSON.parse(localStorage.getItem("list"));
+            myListArray.forEach((item, index) => {
+                if (item.todoText == text) {
+
+                    myListArray.splice(index, 1);
+                    localStorage.setItem('list', JSON.stringify(myListArray));
+                }
+            })
         })
-       
+
         todo.appendChild(checkbtn);
         todo.appendChild(delbtn);
 
